@@ -3,9 +3,9 @@ import axios from "axios";
 const token = localStorage.getItem("authToken");
 const userExists = localStorage.getItem("admin");
 const authTokenExist = localStorage.getItem("authToken");
-// const API_URL = `http://localhost:7500/api`
+const API_URL = `http://localhost:5000/api`
 // const API_URL = `http://157.173.222.27:7500/api`
-const API_URL = `https://golfserver.appsxperts.live/api`
+// const API_URL = `https://golfserver.appsxperts.live/api`
 
 export const addLessonApi = async (data) => {
     try {
@@ -14,7 +14,6 @@ export const addLessonApi = async (data) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
         throw new Error(res.data.message || "Lesson add failed");
@@ -33,13 +32,12 @@ export const addCourseApi = async (data) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
-        throw new Error(res.data.message || "Lesson add failed");
+        throw new Error(res.data.message || "Course add failed");
       }
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Lesson add failed.");
+      throw new Error(error.response?.data?.message || "Course add failed.");
     }
   };
 
@@ -52,13 +50,12 @@ export const addCourseApi = async (data) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
-        throw new Error(res.data.message || "delete failed");
+        throw new Error(res.data.message || "Delete failed");
       }
     } catch (error) {
-      throw new Error(error.response?.data?.message || "delete failed.");
+      throw new Error(error.response?.data?.message || "Delete failed");
     }
   };
 
@@ -71,7 +68,6 @@ export const AddClubApi = async (data) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
         throw new Error(res.data.message || "Lesson add failed");
@@ -90,7 +86,6 @@ export const UpdateClubApi = async (data, id) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
         throw new Error(res.data.message || "Lesson add failed");
@@ -110,7 +105,6 @@ export const DeleteClubApi = async ( id) => {
       });
   
       if (res.data.status) {
-        console.log("Lesson Added:", res.data);
         return res.data;
       } else {
         throw new Error(res.data.message || "Lesson add failed");
@@ -140,5 +134,21 @@ export const DeleteLessionApi = async ( id) => {
     }
   };
 
-
-
+export const updateGolfCourseApi = async (courseId, data) => {
+    try {
+      const res = await axios.put(`${API_URL}/golf/updateCourse/${courseId}`, data, {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+        },
+      });
+  
+      if (res.data.status) {
+        return res.data;
+      } else {
+        throw new Error(res.data.message || "Update failed");
+      }
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Update failed");
+    }
+  };

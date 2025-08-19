@@ -79,7 +79,6 @@ const GolfCourses = () => {
     setLoading(true);
     try {
       const res = await getGolfCoursesList();
-      console.log("Response", res);
       setTableData(res);
     } catch (error) {
       Swal.fire({
@@ -123,7 +122,7 @@ const GolfCourses = () => {
     );
   };
 
-  const handleDelete = async (srNum) => {
+  const handleDelete = async (courseId) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -135,12 +134,12 @@ const GolfCourses = () => {
     }).then( async(result) => {
       if (result.isConfirmed) {
         try { 
-          await DeleteGolfCourseApi(srNum); // wait for delete to finish
+          await DeleteGolfCourseApi(courseId); // wait for delete to finish
           Swal.fire("Deleted!", "The golf course has been deleted.", "success");
           fetchData(); // now run fetch
         } catch (err) {
           console.error("Delete error:", err);
-          Swal.fire("Error", "Something went wrong while deleting.", "error");
+          Swal.fire("Error", err.message || "Something went wrong while deleting.", "error");
         }
       }
     });
@@ -289,26 +288,44 @@ const GolfCourses = () => {
                             </td>
                             <td>{course.description}</td>
                             <td>
-                              <img
-                                src={mediaUrl() + course?.image}
-                                alt="Main"
-                                width="80"
-                                height="60"
-                                style={{ objectFit: "cover", borderRadius: "4px" }}
-                              />
+                              {course?.image ? (
+                                <img
+                                  src={course.image.startsWith('http') ? course.image : `http://localhost:5000/${course.image}`}
+                                  alt="Main"
+                                  width="80"
+                                  height="60"
+                                  style={{ objectFit: "cover", borderRadius: "4px" }}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'block';
+                                  }}
+                                />
+                              ) : (
+                                <div style={{ width: "80px", height: "60px", backgroundColor: "#f8f9fa", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: "#6c757d" }}>
+                                  No Image
+                                </div>
+                              )}
                             </td>
                             <td>
-                              {Array.isArray(course?.gallery) &&
+                              {Array.isArray(course?.gallery) && course.gallery.length > 0 ? (
                                 course.gallery.map((img, i) => (
                                   <img
                                     key={i}
-                                    src={mediaUrl() + img}
+                                    src={img.startsWith('http') ? img : `http://localhost:5000/${img}`}
                                     alt={`Gallery ${i}`}
                                     width="40"
                                     height="40"
                                     style={{ objectFit: "cover", marginRight: "4px", borderRadius: "4px" }}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                    }}
                                   />
-                                ))}
+                                ))
+                              ) : (
+                                <div style={{ width: "40px", height: "40px", backgroundColor: "#f8f9fa", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", color: "#6c757d" }}>
+                                  No Images
+                                </div>
+                              )}
                             </td>
                             <td>
                               <CoursesEdit

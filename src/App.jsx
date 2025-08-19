@@ -30,6 +30,8 @@ import StrokeTest from "./additionalPages/practice/StrokeTest";
 import SimulatedRound from "./additionalPages/practice/SimulatedRound";
 import AddClub from "./additionalPages/AddClub";
 import AddCourse from "./additionalPages/AddCourses";
+import EditCourse from "./additionalPages/EditCourse";
+import ViewCourseDetails from "./additionalPages/ViewCourseDetails";
 import HoleSetup from "./additionalPages/HoleSetup";
 
 function App() {
@@ -46,6 +48,8 @@ function App() {
           <Route path="/lessions/add-lessions" element={<AddLesson />} />
           <Route path="/clubs/add-clubs" element={<AddClub />} />
           <Route path="/courses/add-courses" element={<AddCourse />} />
+          <Route path="/courses/edit-course" element={<EditCourse />} />
+          <Route path="/courses/view-details" element={<ViewCourseDetails />} />
           <Route path="/courses/new/holes" element={<HoleSetup />} />
 
 

@@ -11,7 +11,22 @@ const buildDefaultHole = (holeNumber, courseId, courseName) => ({
   courseHoleId: null, // can be assigned by backend
   par: 4, // default
   hcp: 13, // optional default
-  green: { lat: "", lng: "" },
+  green: {
+    enabled: false,
+    coordinates: []
+  },
+  waterHazard: {
+    enabled: false,
+    coordinates: []
+  },
+  sandBunker: {
+    enabled: false,
+    coordinates: []
+  },
+  fairway: {
+    enabled: false,
+    coordinates: []
+  },
   teeBoxes: [
     { teeType: "pro", color: "black", par: 4, yards: "", meters: "", hcp: "", hex: "#000000" },
     { teeType: "champion", color: "blue", par: 4, yards: "", meters: "", hcp: "", hex: "#0000ff" },
@@ -36,19 +51,7 @@ const HoleSetup = () => {
   const [holes, setHoles] = useState(initialHoles);
   const [loading, setLoading] = useState(false);
 
-  // Debug: Log the state values
-  console.log('HoleSetup Debug:', {
-    courseId,
-    courseName,
-    holesCount,
-    state: useLocation().state
-  });
-  
-  // Additional debugging
-  console.log('Raw state from useLocation:', useLocation().state);
-  console.log('courseId type:', typeof courseId);
-  console.log('courseId value:', courseId);
-  console.log('courseId truthy check:', !!courseId);
+  // Debug logs removed
 
   // Load existing holes when component mounts
   useEffect(() => {
@@ -58,10 +61,26 @@ const HoleSetup = () => {
           setLoading(true);
           const response = await getCourseHoles(courseId);
           if (response.status && response.data.holes.length > 0) {
-            setHoles(response.data.holes);
+            // Transform old green structure to new structure if needed
+            const transformedHoles = response.data.holes.map(hole => {
+              // If green has old structure (lat/lng directly), convert to new structure
+              if (hole.green && typeof hole.green === 'object' && 'lat' in hole.green && 'lng' in hole.green && !('enabled' in hole.green)) {
+                const hasCoordinates = hole.green.lat || hole.green.lng;
+                return {
+                  ...hole,
+                  green: {
+                    enabled: hasCoordinates,
+                    coordinates: hasCoordinates ? [{ lat: hole.green.lat || '', lng: hole.green.lng || '' }] : []
+                  }
+                };
+              }
+              return hole;
+            });
+            
+            setHoles(transformedHoles);
           }
         } catch (error) {
-          console.log("No existing holes found or error:", error.message);
+          // swallow
         } finally {
           setLoading(false);
         }
@@ -75,14 +94,52 @@ const HoleSetup = () => {
     setHoles((prev) => {
       const copy = [...prev];
       const hole = { ...copy[index] };
-      // shallow path setter for green.lat/lng or top-level fields
-      if (path.startsWith("green.")) {
-        const key = path.split(".")[1];
-        hole.green = { ...hole.green, [key]: value };
-      } else {
-        hole[path] = value;
-      }
+      // Handle top-level fields only (par, hcp, etc.)
+      hole[path] = value;
       copy[index] = hole;
+      return copy;
+    });
+  };
+
+  const updateSectionField = (holeIndex, section, field, value) => {
+    setHoles((prev) => {
+      const copy = [...prev];
+      const hole = { ...copy[holeIndex] };
+      hole[section] = { ...hole[section], [field]: value };
+      copy[holeIndex] = hole;
+      return copy;
+    });
+  };
+
+  const addCoordinate = (holeIndex, section) => {
+    setHoles((prev) => {
+      const copy = [...prev];
+      const hole = { ...copy[holeIndex] };
+      hole[section].coordinates = [...hole[section].coordinates, { lat: "", lng: "" }];
+      copy[holeIndex] = hole;
+      return copy;
+    });
+  };
+
+  const removeCoordinate = (holeIndex, section, coordIndex) => {
+    setHoles((prev) => {
+      const copy = [...prev];
+      const hole = { ...copy[holeIndex] };
+      hole[section].coordinates = hole[section].coordinates.filter((_, i) => i !== coordIndex);
+      copy[holeIndex] = hole;
+      return copy;
+    });
+  };
+
+  const updateCoordinate = (holeIndex, section, coordIndex, field, value) => {
+    setHoles((prev) => {
+      const copy = [...prev];
+      const hole = { ...copy[holeIndex] };
+      hole[section].coordinates[coordIndex] = { 
+        ...hole[section].coordinates[coordIndex], 
+        [field]: value 
+      };
+      copy[holeIndex] = hole;
       return copy;
     });
   };
@@ -140,7 +197,6 @@ const HoleSetup = () => {
 
     try {
       setLoading(true);
-      
       // Call the API to save holes
       const response = await saveCourseHoles(courseId, holes);
       
@@ -156,6 +212,78 @@ const HoleSetup = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderCoordinateSection = (holeIndex, section, sectionName, isOptional = false) => {
+    const hole = holes[holeIndex];
+    const sectionData = hole[section];
+    
+    return (
+      <div className="border rounded p-3 mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <strong>{sectionName}</strong>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              checked={sectionData.enabled}
+              onChange={(e) => updateSectionField(holeIndex, section, "enabled", e.target.checked)}
+              id={`${section}-${holeIndex}`}
+            />
+            <label className="form-check-label" htmlFor={`${section}-${holeIndex}`}>
+              Enable {sectionName}
+            </label>
+          </div>
+        </div>
+        
+        {sectionData.enabled && (
+          <div>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <span>Coordinates</span>
+              <button 
+                type="button" 
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => addCoordinate(holeIndex, section)}
+              >
+                + Add Coordinate
+              </button>
+            </div>
+            
+            {sectionData.coordinates.map((coord, coordIndex) => (
+              <div className="row g-2 mb-2" key={coordIndex}>
+                <div className="col-5">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Latitude"
+                    value={coord.lat}
+                    onChange={(e) => updateCoordinate(holeIndex, section, coordIndex, "lat", e.target.value)}
+                  />
+                </div>
+                <div className="col-5">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Longitude"
+                    value={coord.lng}
+                    onChange={(e) => updateCoordinate(holeIndex, section, coordIndex, "lng", e.target.value)}
+                  />
+                </div>
+                <div className="col-2">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => removeCoordinate(holeIndex, section, coordIndex)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -198,28 +326,17 @@ const HoleSetup = () => {
                 </div>
 
                 <div className="card-body">
-                  <div className="row g-2">
-                    <div className="col-6">
-                      <label className="form-label">Green Lat</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={hole.green.lat}
-                        onChange={(e) => updateHoleField(holeIndex, "green.lat", e.target.value)}
-                        placeholder="e.g. 43.57029"
-                      />
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label">Green Lng</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={hole.green.lng}
-                        onChange={(e) => updateHoleField(holeIndex, "green.lng", e.target.value)}
-                        placeholder="-96.76188"
-                      />
-                    </div>
-                  </div>
+                  {/* Green Section */}
+                  {renderCoordinateSection(holeIndex, "green", "Green", true)}
+
+                  {/* Water Hazard Section */}
+                  {renderCoordinateSection(holeIndex, "waterHazard", "Water Hazard", true)}
+
+                  {/* Sand Bunker Section */}
+                  {renderCoordinateSection(holeIndex, "sandBunker", "Sand Bunker")}
+
+                  {/* Fairway Section */}
+                  {renderCoordinateSection(holeIndex, "fairway", "Fairway", true)}
 
                   <hr />
 
@@ -280,15 +397,6 @@ const HoleSetup = () => {
                             onChange={(e) => updateTeeBoxField(holeIndex, teeIndex, "meters", e.target.value)}
                           />
                         </div>
-                        {/* <div className="col-md-1">
-                          <label className="form-label">HCP</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={tee.hcp}
-                            onChange={(e) => updateTeeBoxField(holeIndex, teeIndex, "hcp", e.target.value)}
-                          />
-                        </div> */}
                         <div className="col-md-3">
                           <label className="form-label">Hex</label>
                           <input

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CoursesEdit = ({
     setOpenDropdown,
@@ -7,7 +8,9 @@ const CoursesEdit = ({
     handleEdit,
     handleDelete
   }) => {
+    const navigate = useNavigate();
     const dropdownRef = useRef(null);
+    
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -21,6 +24,16 @@ const CoursesEdit = ({
         document.removeEventListener("mousedown", handleClickOutside);
       };
     }, [openDropdown, setOpenDropdown, row._id]);
+
+    const handleViewDetails = () => {
+      navigate("/courses/view-details", { state: { courseData: row } });
+      setOpenDropdown(null);
+    };
+
+    const handleEditCourse = () => {
+      navigate("/courses/edit-course", { state: { courseData: row } });
+      setOpenDropdown(null);
+    };
 
   return (
     <div className="dropdown text-center" ref={dropdownRef}>
@@ -40,15 +53,18 @@ const CoursesEdit = ({
       </button>
       {openDropdown === row._id && (
         <div className="dropdown-menu show">
-          {/* <a
+          <a
             className="dropdown-item"
-            // onClick={() => {
-            //   handleEdit(row);
-            //   setOpenDropdown(null);
-            // }}
+            onClick={handleViewDetails}
+          >
+            <i className="fa fa-eye"></i> View Details
+          </a>
+          <a
+            className="dropdown-item"
+            onClick={handleEditCourse}
           >
             <i className="fa fa-edit"></i> Edit
-          </a> */}
+          </a>
           <a
             className="dropdown-item"
             onClick={() => {

@@ -59,9 +59,9 @@ const AddCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
+    // Validate required fields (matching backend requirements)
     const newErrors = {};
-    const requiredFields = ["name", "address", "city", "state", "description", "holesCount", "facilities", "contact", "image"];
+    const requiredFields = ["name", "address", "city", "state", "description"];
     
     requiredFields.forEach(field => {
       if (!courseForm[field]) {
@@ -106,21 +106,21 @@ const AddCourse = () => {
       console.log('API Response:', res);
       console.log('Response type:', typeof res);
       console.log('Response keys:', Object.keys(res || {}));
-      console.log('Response.data keys:', Object.keys(res?.data || {}));
+      console.log('Course object:', res?.course);
+      console.log('Course _id:', res?.course?._id);
+      console.log('Course keys:', Object.keys(res?.course || {}));
       console.log('Response structure:', {
         status: res?.status,
-        data: res?.data,
-        courseId: res?.data?.courseId,
-        directCourseId: res?.courseId,
-        _id: res?.data?._id,
-        id: res?.data?.id
+        course: res?.course,
+        courseId: res?.course?._id,
+        message: res?.message
       });
       
       if (res && res.status) {
         await Swal.fire("Success", res.message || "Course created. Now add holes.", "success");
 
-        // Try multiple possible locations for courseId
-        const courseId = res.data?.courseId || res.data?._id || res.data?.id || res.courseId || res._id || res.id;
+        // Extract courseId from the course object returned by the API
+        const courseId = res.course?._id;
         console.log('=== EXTRACTED COURSE ID ===');
         console.log('Final extracted courseId:', courseId);
         console.log('courseId type:', typeof courseId);
@@ -129,6 +129,7 @@ const AddCourse = () => {
         if (!courseId) {
           console.error('❌ ERROR: No courseId found in API response!');
           console.error('Available data:', res);
+          console.error('Course object:', res.course);
           Swal.fire("Error", "Course created but no ID returned. Please contact support.", "error");
           return;
         }

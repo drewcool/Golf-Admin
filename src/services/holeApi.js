@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Use local backend for testing
 const API_BASE_URL = 'http://localhost:5000/api/golf';
 
 // Save holes for a course
