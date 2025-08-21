@@ -46,7 +46,8 @@ export const getAllDashboard = async () => {
         if (!userExists) {
             throw new Error("User is not logged in or does not exist in localStorage.");
         }
-        const response = await axios.get(`${API_URL}/admin/dashboard-data`, {
+        // Use local server for dashboard data to avoid remote timeouts
+        const response = await axios.get(`http://localhost:5000/api/admin/dashboard-data`, {
             headers: {
                 Authorization: `Bearer ${authTokenExist}`,
             },

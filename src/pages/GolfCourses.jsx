@@ -296,8 +296,9 @@ const GolfCourses = () => {
                                   height="60"
                                   style={{ objectFit: "cover", borderRadius: "4px" }}
                                   onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'block';
+                                    if (e && e.target) {
+                                      e.target.style.display = 'none';
+                                    }
                                   }}
                                 />
                               ) : (
