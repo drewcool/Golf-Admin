@@ -2,11 +2,26 @@ import axios from "axios";
 
 const userExists = localStorage.getItem("admin");
 const authTokenExist = localStorage.getItem("authToken");
-// Choose local API in development to avoid CORS, production otherwise
-const API_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api'
-    : 'https://golfserver.appsxperts.live/api';
+// Hybrid API configuration - auto-detect environment
+const getApiUrl = () => {
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  
+  // If running on localhost, use local backend
+  if (hostname === 'localhost' && port === '5173') {
+    return 'http://localhost:5000/api';
+  }
+  
+  // If running on production IP, use production backend
+  if (hostname === '13.50.244.87') {
+    return 'http://13.50.244.87:5000/api';
+  }
+  
+  // Default fallback to production
+  return 'http://13.50.244.87:5000/api';
+};
+
+const API_URL = getApiUrl();
 
 export const getUserLogin = async (data) => {
     try {

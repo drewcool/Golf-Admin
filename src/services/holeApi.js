@@ -1,10 +1,25 @@
 import axios from 'axios';
 
-// Dynamic backend: local in dev, prod in build
-const API_BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api/golf'
-    : 'https://golfserver.appsxperts.live/api/golf';
+// Hybrid API configuration - auto-detect environment
+const getApiUrl = () => {
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  
+  // If running on localhost, use local backend
+  if (hostname === 'localhost' && port === '5173') {
+    return 'http://localhost:5000/api/golf';
+  }
+  
+  // If running on production IP, use production backend
+  if (hostname === '13.50.244.87') {
+    return 'http://13.50.244.87:5000/api/golf';
+  }
+  
+  // Default fallback to production
+  return 'http://13.50.244.87:5000/api/golf';
+};
+
+const API_BASE_URL = getApiUrl();
 
 // Save holes for a course
 export const saveCourseHoles = async (courseId, holes) => {
