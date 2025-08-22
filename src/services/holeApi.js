@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use local backend for testing
-const API_BASE_URL = 'http://localhost:5000/api/golf';
+// Use EC2 backend
+const API_BASE_URL = 'http://13.234.113.29:5000/api/golf';
 
 // Save holes for a course
 export const saveCourseHoles = async (courseId, holes) => {
@@ -35,4 +35,3 @@ export const deleteCourseHoles = async (courseId) => {
     throw new Error(error.response?.data?.message || 'Failed to delete holes');
   }
 };
-
