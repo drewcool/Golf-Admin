@@ -3,9 +3,11 @@ import axios from "axios";
 const token = localStorage.getItem("authToken");
 const userExists = localStorage.getItem("admin");
 const authTokenExist = localStorage.getItem("authToken");
-// const API_URL = `http://13.234.113.29:5000/api`
-// const API_URL = `http://157.173.222.27:7500/api`
-const API_URL = `https://golfserver.appsxperts.live/api`
+// Use local API in dev to bypass CORS preflight issues
+const API_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://golfserver.appsxperts.live/api';
 
 export const addLessonApi = async (data) => {
     try {
@@ -78,10 +80,11 @@ export const AddClubApi = async (data) => {
   };
 export const UpdateClubApi = async (data, id) => {
     try {
-      const res = await axios.delete(`${API_URL}/admin/update-club/${id}`, {
+      // Use PUT for update instead of DELETE
+      const res = await axios.put(`${API_URL}/admin/update-club/${id}`, data, {
         headers: { 
           "Content-Type": "multipart/form-data",
-           Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`
          },
       });
   

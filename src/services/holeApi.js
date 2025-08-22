@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// Use production backend
-const API_BASE_URL = 'https://golfserver.appsxperts.live/api/golf';
+// Dynamic backend: local in dev, prod in build
+const API_BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api/golf'
+    : 'https://golfserver.appsxperts.live/api/golf';
 
 // Save holes for a course
 export const saveCourseHoles = async (courseId, holes) => {

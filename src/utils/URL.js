@@ -1,7 +1,14 @@
 // Function to return base media URL
-// export const mediaUrl = () => `http://157.173.222.27:7500/`;
-export const mediaUrl = () => `https://golfserver.appsxperts.live/`;
+// Dynamic media base (serves /images from backend). Use local when developing.
+export const mediaUrl = () => (
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/'
+    : 'https://golfserver.appsxperts.live/'
+);
 
 // Function to return base API URL
-// export const APIURL = () => `http://157.173.222.27:7500/`;
-export const APIURL = () => `https://golfserver.appsxperts.live/`;
+export const APIURL = () => (
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/'
+    : 'https://golfserver.appsxperts.live/'
+);

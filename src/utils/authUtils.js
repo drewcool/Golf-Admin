@@ -2,7 +2,8 @@ import axios from "axios";
 
 const userExists = localStorage.getItem("admin");
 const authTokenExist = localStorage.getItem("authToken");
-const API_URL = `http://157.173.222.27:3008/api/v1`
+// Unified API base for the admin app
+const API_URL = `https://golfserver.appsxperts.live/api`
 
 export const getAllServices = async () => {
     try {
@@ -46,8 +47,7 @@ export const getAllDashboard = async () => {
         if (!userExists) {
             throw new Error("User is not logged in or does not exist in localStorage.");
         }
-        // Use production server for dashboard data
-        const response = await axios.get(`https://golfserver.appsxperts.live/api/admin/dashboard-data`, {
+        const response = await axios.get(`${API_URL}/admin/dashboard-data`, {
             headers: {
                 Authorization: `Bearer ${authTokenExist}`,
             },
