@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use EC2 backend
-const API_BASE_URL = 'http://13.234.113.29:5000/api/golf';
+// Use production backend
+const API_BASE_URL = 'https://golfserver.appsxperts.live/api/golf';
 
 // Save holes for a course
 export const saveCourseHoles = async (courseId, holes) => {

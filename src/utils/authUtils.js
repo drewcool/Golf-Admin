@@ -46,8 +46,8 @@ export const getAllDashboard = async () => {
         if (!userExists) {
             throw new Error("User is not logged in or does not exist in localStorage.");
         }
-        // Use local server for dashboard data to avoid remote timeouts
-        const response = await axios.get(`http://localhost:5000/api/admin/dashboard-data`, {
+        // Use production server for dashboard data
+        const response = await axios.get(`https://golfserver.appsxperts.live/api/admin/dashboard-data`, {
             headers: {
                 Authorization: `Bearer ${authTokenExist}`,
             },

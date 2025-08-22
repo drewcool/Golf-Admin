@@ -290,7 +290,7 @@ const GolfCourses = () => {
                             <td>
                               {course?.image ? (
                                 <img
-                                  src={course.image.startsWith('http') ? course.image : `http://localhost:5000/${course.image}`}
+                                  src={course.image.startsWith('http') ? course.image : `${mediaUrl()}${course.image}`}
                                   alt="Main"
                                   width="80"
                                   height="60"
@@ -312,7 +312,7 @@ const GolfCourses = () => {
                                 course.gallery.map((img, i) => (
                                   <img
                                     key={i}
-                                    src={img.startsWith('http') ? img : `http://localhost:5000/${img}`}
+                                    src={img.startsWith('http') ? img : `${mediaUrl()}${img}`}
                                     alt={`Gallery ${i}`}
                                     width="40"
                                     height="40"
